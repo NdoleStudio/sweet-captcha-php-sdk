@@ -1,0 +1,24 @@
+{
+    "name": "nodlestudio/sweet-captcha-php-sdk",
+    "description": "Unofficial PHP SDK for https://www.sweetcaptcha.com",
+    "keywords": ["sdk", "php", "sweetcaptcha"],
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Acho Arnold",
+            "email": "arnold@ndolestudio.com"
+        }
+    ],
+    "type": "sdk",
+    "require": {
+		"php": ">=5.4"
+    },
+	"require-dev": {
+		"phpunit/phpunit": "5.2.*"
+    },
+	"autoload": {
+        "psr-4": {
+            "SweetCaptcha\\": "src/"
+        }
+    }
+}
