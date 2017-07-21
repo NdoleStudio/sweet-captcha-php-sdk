@@ -1,5 +1,5 @@
 {
-    "name": "ndolestudio/sweet-captcha-php-sdk",
+    "name": "ndolestudio/sweet-captcha-sdk-php",
     "description": "Unofficial PHP SDK for https://www.sweetcaptcha.com",
     "keywords": ["sdk", "php", "sweetcaptcha"],
     "license": "GPL-3.0",
