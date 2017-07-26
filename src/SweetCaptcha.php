@@ -7,13 +7,12 @@ use RuntimeException;
 /**
  * Handles remote negotiation with https://www.sweetcaptcha.com
  *
- * @version 0.1.0
+ * @version 0.1.1
  * @updated July 21, 2017
  */
 class SweetCaptcha {
 
-    const API_URL = 'sweetcaptcha.com';
-    const API_PORT = 80;
+    const API_URL = 'http://www.sweetcaptcha.com/api';
 
     /**
      * @var string
@@ -31,21 +30,14 @@ class SweetCaptcha {
     private $secret;
 
     /**
-     * @var string
-     */
-    private $path;
-
-    /**
      * @param string $appId
      * @param string $key
      * @param string $secret
-     * @param string $path
      */
-    function __construct($appId, $key, $secret, $path) {
+    function __construct($appId, $key, $secret) {
         $this->appId = $appId;
         $this->key = $key;
         $this->secret = $secret;
-        $this->path = $path;
     }
 
 
@@ -62,11 +54,11 @@ class SweetCaptcha {
     /**
      * @param array $params
      *
-     * @return string
+     * @return bool
      */
     public function check(array $params)
     {
-        return $this->api('check', $params);
+        return $this->api('check', $params) === 'true';
     }
 
     /**
@@ -81,9 +73,8 @@ class SweetCaptcha {
             'method'      => $method,
             'appid'       => $this->appId,
             'key'         => $this->key,
-            'path'        => $this->path,
             'user_ip'     => $_SERVER['REMOTE_ADDR'],
-            'platform'    => 'php'
+            'platform'    => 'api'
         );
 
         return $this->call(array_merge(isset($params[0]) ? $params[0] : $params, $basic));
@@ -102,28 +93,15 @@ class SweetCaptcha {
             $paramData .= urlencode($paramName) .'='. urlencode($paramValue) .'&';
         }
 
-        if (!($fs = fsockopen(self::API_URL, self::API_PORT, $errno, $errstr, 10))) {
-            throw new RuntimeException("Couldn't connect to server");
-        }
+        $ch = curl_init();
 
-        $req = "POST /api.php HTTP/1.0\r\n";
-        $req .= "Host: ".self::API_URL."\r\n";
-        $req .= "Content-Type: application/x-www-form-urlencoded\r\n";
-        $req .= "Referer: " . $_SERVER['HTTP_HOST']. "\r\n";
-        $req .= "Content-Length: " . strlen($paramData) . "\r\n\r\n";
-        $req .= $paramData;
+        curl_setopt($ch, CURLOPT_URL,self::API_URL);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close ($ch);
 
-        $response = '';
-        fwrite($fs, $req);
-
-        while (!feof($fs)) {
-            $response .= fgets($fs, 1160);
-        }
-
-        fclose($fs);
-
-        $response = explode("\r\n\r\n", $response, 2);
-
-        return $response[1];
+        return $response;
     }
 }
